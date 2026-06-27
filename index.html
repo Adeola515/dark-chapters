@@ -1,12 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dark Chapters</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
-</html>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Dark Chapters — Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#0A0A0A;--ink-2:#141414;--ink-3:#1E1E1E;--ink-4:#2A2A2A;--crimson:#8B0000;--crimson-2:#A80000;--gold:#D4AF37;--gold-dim:#9A7D20;--ash:#888880;--ash-dim:#555550;--white:#F5F0E8}
+html{font-size:16px}
+body{background:var(--ink);color:var(--white);font-family:'Inter',sans-serif;line-height:1.6;min-height:100vh}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--ink-2)}::-webkit-scrollbar-thumb{background:var(--crimson);border-radius:3px}
+.app{display:flex;min-height:100vh}
+.sidebar{width:220px;min-width:220px;background:var(--ink-2);border-right:1px solid var(--ink-4);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid var(--ink-4)}
+.wordmark{font-family:'Playfair Display',serif;font-weight:900;font-size:1.15rem;color:var(--white);line-height:1.2}
+.handle{font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--gold);margin-top:4px;letter-spacing:0.05em}
+.crimson-bar{width:32px;height:3px;background:var(--crimson);margin-top:10px}
+.nav{padding:16px 0;flex:1}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:0.82rem;font-weight:500;color:var(--ash);cursor:pointer;transition:all 0.15s;border-left:2px solid transparent}
+.nav-item:hover{color:var(--white);background:var(--ink-3)}
+.nav-item.active{color:var(--gold);border-left-color:var(--gold);background:rgba(212,175,55,0.05)}
+.sidebar-footer{padding:16px 20px;border-top:1px solid var(--ink-4);font-size:0.68rem;color:var(--ash-dim);line-height:1.5}
+.main{flex:1;overflow-y:auto}
+.hero{background:linear-gradient(135deg,var(--ink) 0%,#120000 60%,#0D0800 100%);border-bottom:1px solid var(--ink-4);padding:48px 48px 40px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:260px;height:260px;background:radial-gradient(circle,rgba(139,0,0,0.18) 0%,transparent 70%);pointer-events:none}
+.hero-eyebrow{font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--crimson);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:12px}
+.hero-title{font-family:'Playfair Display',serif;font-weight:900;font-size:2.4rem;line-height:1.1;color:var(--white);margin-bottom:10px}
+.hero-title em{font-style:italic;color:var(--gold)}
+.hero-sub{font-size:0.88rem;color:var(--ash);max-width:520px;line-height:1.7}
+.status-bar{display:flex;gap:24px;margin-top:28px;flex-wrap:wrap}
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat-value{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--white);line-height:1}
+.stat-value.gold{color:var(--gold)}.stat-value.crimson{color:var(--crimson-2)}
+.stat-label{font-size:0.68rem;color:var(--ash);letter-spacing:0.08em;text-transform:uppercase}
+.stat-divider{width:1px;background:var(--ink-4);align-self:stretch}
+.content{padding:40px 48px}
+.section-header{display:flex;align-items:baseline;gap:12px;margin-bottom:24px}
+.section-title{font-family:'Playfair Display',serif;font-weight:700;font-size:1.2rem;color:var(--white)}
+.section-rule{flex:1;height:1px;background:var(--ink-4)}
+.section-label{font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--ash-dim);letter-spacing:0.1em}
+.panel{background:var(--ink-2);border:1px solid var(--ink-4);border-radius:2px;padding:32px;margin-bottom:32px;position:relative}
+.panel::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--crimson);border-radius:2px 0 0 2px}
+.panel-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--white);margin-bottom:6px}
+.panel-desc{font-size:0.8rem;color:var(--ash);margin-bottom:24px;line-height:1.6}
+.input-row{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.input-group{display:flex;flex-direction:column;gap:6px;flex:1;min-width:200px}
+.input-label{font-size:0.7rem;font-weight:500;color:var(--ash);letter-spacing:0.08em;text-transform:uppercase}
+.input-field{background:var(--ink-3);border:1px solid var(--ink-4);border-radius:2px;padding:10px 14px;color:var(--white);font-family:'Inter',sans-serif;font-size:0.85rem;outline:none;transition:border-color 0.2s;width:100%}
+.input-field:focus{border-color:var(--gold)}
+.input-field::placeholder{color:var(--ash-dim)}
+select.input-field{cursor:pointer}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border:none;border-radius:2px;font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.04em;text-transform:uppercase;text-decoration:none}
+.btn-primary{background:var(--crimson);color:var(--white)}
+.btn-primary:hover:not([disabled]){background:var(--crimson-2);transform:translateY(-1px)}
+.btn-primary[disabled]{opacity:0.5;cursor:not-allowed}
+.btn-gold{background:transparent;color:var(--gold);border:1px solid var(--gold-dim)}
+.btn-gold:hover{background:rgba(212,175,55,0.08)}
+.btn-ghost{background:transparent;color:var(--ash);border:1px solid var(--ink-4)}
+.btn-ghost:hover{color:var(--white);border-color:var(--ash-dim)}
+.pipeline{display:flex;margin:28px 0 0;position:relative}
+.pipeline::before{content:'';position:absolute;top:18px;left:24px;right:24px;height:1px;background:var(--ink-4);z-index:0}
+.pipeline-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:1}
+.step-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.9rem;border:2px solid var(--ink-4);background:var(--ink-2);color:var(--ash-dim);transition:all 0.4s}
+.step-dot.active{border-color:var(--gold);color:var(--gold);background:rgba(212,175,55,0.1);animation:pg 1.5s ease-in-out infinite}
+.step-dot.done{border-color:var(--crimson);background:var(--crimson);color:var(--white)}
+.step-name{font-size:0.62rem;color:var(--ash-dim);text-align:center;letter-spacing:0.06em;text-transform:uppercase;line-height:1.3;max-width:70px}
+.step-name.active{color:var(--gold)}.step-name.done{color:var(--ash)}
+@keyframes pg{0%,100%{box-shadow:0 0 12px rgba(212,175,55,0.25)}50%{box-shadow:0 0 24px rgba(212,175,55,0.5)}}
+.log-box{background:#080808;border:1px solid var(--ink-4);border-radius:2px;padding:16px 20px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;line-height:1.8;max-height:200px;overflow-y:auto;margin-top:20px}
+.log-line{display:flex;gap:10px}
+.log-time{color:var(--ash-dim);min-width:60px}
+.log-msg{color:#AAA89A}.log-msg.success{color:#6DBF82}.log-msg.error{color:#E05252}.log-msg.info{color:var(--gold)}
+.script-box{background:var(--ink-2);border:1px solid var(--ink-4);border-radius:2px;overflow:hidden;margin-top:24px}
+.script-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--ink-4);background:var(--ink-3)}
+.script-head-title{font-family:'Playfair Display',serif;font-size:0.95rem;color:var(--white)}
+.badge{font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--gold);border:1px solid var(--gold-dim);padding:2px 8px}
+.scene{display:flex;gap:16px;padding:16px 20px;border-bottom:1px solid var(--ink-3);align-items:flex-start}
+.scene:last-child{border-bottom:none}
+.scene:hover{background:var(--ink-3)}
+.scene-num{font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--crimson);min-width:28px;padding-top:3px}
+.scene-type{font-size:0.6rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--ash-dim);min-width:70px;padding-top:4px}
+.scene-headline{font-family:'Playfair Display',serif;font-size:0.9rem;color:var(--white);margin-bottom:4px}
+.scene-narration{font-size:0.78rem;color:var(--ash);line-height:1.6}
+.watch-panel{background:var(--ink-2);border:1px solid var(--gold-dim);border-radius:2px;overflow:hidden;margin-top:28px;animation:fu 0.4s ease}
+@keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.watch-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--ink-4);background:rgba(212,175,55,0.05);flex-wrap:wrap;gap:8px}
+.watch-head-left{display:flex;align-items:center;gap:10px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#6DBF82;animation:blink 1.5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.watch-label{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase}
+.watch-title-txt{font-family:'Playfair Display',serif;font-size:0.9rem;color:var(--white);line-height:1.3}
+.watch-body{padding:24px}
+.watch-embed{width:100%;aspect-ratio:16/9;border:none;border-radius:2px;background:#000;display:block}
+.watch-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:center}
+.watch-url{font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--ash);background:var(--ink-3);border:1px solid var(--ink-4);padding:8px 12px;border-radius:2px;flex:1;min-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.watch-ts{font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--ash-dim);margin-left:auto;white-space:nowrap}
+.video-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:8px}
+.video-card{background:var(--ink-2);border:1px solid var(--ink-4);border-radius:2px;overflow:hidden;transition:border-color 0.2s}
+.video-card:hover{border-color:var(--ash-dim)}
+.video-thumb{width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#120000,#0D0800);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:0.85rem;color:var(--gold);font-style:italic;text-align:center;padding:16px;line-height:1.4;border-bottom:1px solid var(--ink-4);position:relative;cursor:pointer}
+.play-ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:transparent;transition:background 0.2s}
+.play-ov:hover{background:rgba(139,0,0,0.35)}
+.play-circle{width:44px;height:44px;border-radius:50%;background:rgba(139,0,0,0.85);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#fff}
+.video-info{padding:14px 16px}
+.video-title{font-size:0.82rem;font-weight:500;color:var(--white);line-height:1.4;margin-bottom:8px}
+.video-meta{display:flex;align-items:center;justify-content:space-between}
+.video-date{font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--ash-dim)}
+.vstatus{font-family:'JetBrains Mono',monospace;font-size:0.6rem;letter-spacing:0.08em;padding:2px 7px}
+.vstatus.live{color:#6DBF82;border:1px solid rgba(109,191,130,0.3)}
+.video-btns{display:flex;gap:8px;margin-top:12px}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.scard{background:var(--ink-2);border:1px solid var(--ink-4);border-radius:2px;padding:24px}
+.scard-title{font-family:'Playfair Display',serif;font-size:0.95rem;color:var(--white);margin-bottom:4px}
+.scard-desc{font-size:0.75rem;color:var(--ash);margin-bottom:20px;line-height:1.5}
+.key-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.key-row .input-field{flex:1;font-family:'JetBrains Mono',monospace;font-size:0.75rem}
+.key-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.key-dot.set{background:#6DBF82}.key-dot.unset{background:var(--ash-dim)}
+.sched-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--ink-3)}
+.sched-row:last-child{border-bottom:none}
+.sched-day{font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--gold);min-width:90px}
+.sched-time{font-size:0.8rem;color:var(--white);flex:1}
+.toggle{width:36px;height:20px;background:var(--ink-4);border-radius:10px;position:relative;cursor:pointer;transition:background 0.2s;border:none;outline:none}
+.toggle.on{background:var(--crimson)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--white);transition:transform 0.2s}
+.toggle.on::after{transform:translateX(16px)}
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:2000;display:flex;align-items:center;justify-content:center;padding:24px}
+.modal{background:var(--ink-2);border:1px solid var(--ink-4);border-radius:2px;width:100%;max-width:840px;overflow:hidden}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--ink-4);background:var(--ink-3)}
+.modal-title{font-family:'Playfair Display',serif;font-size:0.95rem;color:var(--white);line-height:1.3;max-width:600px}
+.modal-close{background:none;border:none;color:var(--ash);font-size:1.2rem;cursor:pointer;padding:4px 8px}
+.modal-close:hover{color:var(--white)}
+.modal-body{padding:20px}
+.modal-embed{width:100%;aspect-ratio:16/9;border:none;background:#000;display:block}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--ink-4);display:flex;align-items:center;gap:10px}
+.yt-link{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--gold);text-decoration:none;border:1px solid var(--gold-dim);padding:6px 12px}
+.yt-link:hover{background:rgba(212,175,55,0.1)}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ink-3);border:1px solid var(--ink-4);border-left:3px solid var(--crimson);padding:12px 18px;font-size:0.8rem;color:var(--white);z-index:1000;max-width:320px}
+@media(max-width:768px){.app{flex-direction:column}.sidebar{width:100%;height:auto;position:static}.hero{padding:28px 20px}.hero-title{font-size:1.6rem}.content{padding:24px 20px}.settings-grid{grid-template-columns:1fr}.input-row{flex-direction:column}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const {useState,useRef,createElement:h}=React;
+
+const VIDEOS=[
+  {id:1,title:"The Forgotten Empire: The Khazar Kingdom",date:"Jun 26, 2026",status:"live",thumb:"The Forgotten Empire:\nThe Khazar Kingdom",videoId:"dQw4w9WgXcQ"},
+  {id:2,title:"The Poison King: Mithridates VI",date:"Jun 23, 2026",status:"live",thumb:"The Poison King:\nMithridates VI",videoId:"dQw4w9WgXcQ"},
+  {id:3,title:"Operation Mincemeat: The Dead Man Who Fooled Hitler",date:"Jun 19, 2026",status:"live",thumb:"Operation Mincemeat",videoId:"dQw4w9WgXcQ"},
+];
+
+const STEPS=[{n:"Topic\nGeneration",i:"🧠"},{n:"Script\nWriting",i:"📝"},{n:"HeyGen\nRender",i:"🎬"},{n:"YouTube\nUpload",i:"📤"}];
+
+const FALLBACK={
+  title:"The Sodder Children: America's Most Haunting Unsolved Disappearance",
+  scenes:[
+    {scene_number:1,type:"hook",headline:"Christmas Eve. Five children. No bodies.",narration:"On December 24, 1945, the Sodder family home in West Virginia caught fire. George and Jennie escaped with four children. The other five were never seen again — and no remains were ever found in the ashes."},
+    {scene_number:2,type:"narrative",headline:"The fire that made no sense",narration:"The fire department took hours to arrive. The family ladders had vanished. Their truck wouldn't start. Witnesses reported strange men near the house that night."},
+    {scene_number:3,type:"fact",headline:"No bones. No evidence. No answers.",narration:"A 1949 investigation found zero bone fragments. Experts confirmed a fire of that temperature could not destroy human remains. The cause was ruled undetermined."},
+    {scene_number:4,type:"dramatic",headline:"A billboard haunted a highway for 30 years",narration:"George erected a billboard on Route 16 with his children's photos. In 1967, Jennie received a photo of a man who looked exactly like her missing son Louis, with a cryptic handwritten note."},
+    {scene_number:5,type:"outro",headline:"The case was never solved.",narration:"The Sodder children case remains one of America's most haunting mysteries. What other stories has history buried? Subscribe — we dig them up every week."},
+  ]
+};
+
+function buildPrompt(topicText){
+  const tl=(topicText&&topicText!=="AI-chosen obscure history topic")
+    ?"The user suggested this topic: "+topicText+". Build the video around it."
+    :"Choose ONE genuinely obscure historical topic most people have never heard of.";
+  return "You are a creative director for a YouTube channel called Dark Chapters — Micro-History & Obscure Facts.\n\n"+tl+"\n\nReturn ONLY valid JSON, no markdown, no backticks. Structure: {\"title\":\"string\",\"scenes\":[{\"scene_number\":1,\"type\":\"hook\",\"headline\":\"string\",\"narration\":\"string\"},{\"scene_number\":2,\"type\":\"narrative\",\"headline\":\"string\",\"narration\":\"string\"},{\"scene_number\":3,\"type\":\"fact\",\"headline\":\"string\",\"narration\":\"string\"},{\"scene_number\":4,\"type\":\"dramatic\",\"headline\":\"string\",\"narration\":\"string\"},{\"scene_number\":5,\"type\":\"outro\",\"headline\":\"string\",\"narration\":\"string\"}]}";
+}
+
+function App(){
+  const [page,setPage]=useState("generate");
+  const [topic,setTopic]=useState("");
+  const [style,setStyle]=useState("cinematic documentary");
+  const [privacy,setPrivacy]=useState("public");
+  const [running,setRunning]=useState(false);
+  const [step,setStep]=useState(-1);
+  const [logs,setLogs]=useState([]);
+  const [script,setScript]=useState(null);
+  const [done,setDone]=useState(null);
+  const [modal,setModal]=useState(null);
+  const [toast,setToast]=useState(null);
+  const [sched,setSched]=useState({mon:true,thu:true,sat:false});
+  const [keys,setKeys]=useState({gemini:"",heygen:"",youtube:""});
+  const logRef=useRef(null);
+
+  const delay=ms=>new Promise(r=>setTimeout(r,ms));
+  const now=()=>new Date().toLocaleTimeString("en-US",{hour12:false,hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  const log=(msg,type="default")=>{
+    setLogs(l=>[...l,{t:now(),msg,type}]);
+    setTimeout(()=>{if(logRef.current)logRef.current.scrollTop=logRef.current.scrollHeight;},50);
+  };
+  const showToast=msg=>{setToast(msg);setTimeout(()=>setToast(null),3500);};
+
+  const run=async()=>{
+    if(running)return;
+    setRunning(true);setLogs([]);setScript(null);setDone(null);setStep(0);
+    const topicText=topic.trim()||"AI-chosen obscure history topic";
+    log("Starting pipeline for: "+topicText,"info");
+    log("Connecting to Google Gemini (free)...");
+    await delay(800);
+    log("Generating script...");
+    let sc=null;
+    const gkey=keys.gemini.trim();
+    if(!gkey){
+      log("No Gemini key — go to Settings to add yours.","error");
+      log("Loading fallback script...","info");
+      await delay(500);
+      sc=FALLBACK;
+      log("Fallback script loaded.","success");
+    } else {
+      try{
+        const res=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key="+gkey,{
+          method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({contents:[{parts:[{text:buildPrompt(topicText)}]}],generationConfig:{temperature:0.9,maxOutputTokens:1200}})
+        });
+        if(!res.ok)throw new Error("HTTP "+res.status);
+        const data=await res.json();
+        const raw=(data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]&&data.candidates[0].content.parts[0].text)||"";
+        if(!raw)throw new Error("Empty response");
+        const clean=raw.replace(/```json/g,"").replace(/```/g,"").trim();
+        const parsed=JSON.parse(clean);
+        if(!parsed.tit
